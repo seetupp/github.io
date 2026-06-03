@@ -329,9 +329,19 @@ nav a:hover {
     font-size: 0.9rem;
 }
 
-.equip-card .action-btn:hover {
-    box-shadow: 0 0 15px #00bcff;
-    transform: scale(1.02);
+.equip-card .action-btn {
+    margin: 0 20px 15px 0px;
+    background: #00bcff;
+    color: #000;
+    border: none;
+    padding: 0.2px 3px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+    text-decoration: none;
+    display: block;
+    font-size: 0.9rem;
 }
 
 .favorite-icon {
