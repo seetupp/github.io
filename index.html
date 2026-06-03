@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <link rel="icon" href="indir_1.htm" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEETUP | TR'DE TEK</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <canvas id="bgCanvas"></canvas>
+
+    <a href="https://www.inovapin.com/p/seetup?page=1&t=cekilisler" target="_blank" style="text-decoration: none; color: inherit;">
+        <div class="top-banner">
+            <div class="banner-track">
+                HAFTALIK <span class="white-inovapin">6x875 VP</span> ÇEKİLİŞİMİZ BAŞLADI! TIKLA KATIL DESTEKÇİMİZ: <span class="white-inovapin">INOVAPIN</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                HAFTALIK <span class="white-inovapin">6x875 VP</span> ÇEKİLİŞİMİZ BAŞLADI! TIKLA KATIL DESTEKÇİMİZ: <span class="white-inovapin">INOVAPIN</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                HAFTALIK <span class="white-inovapin">6x875 VP</span> ÇEKİLİŞİMİZ BAŞLADI! TIKLA KATIL DESTEKÇİMİZ: <span class="white-inovapin">INOVAPIN</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </div>
+        </div>
+    </a>
+
+    <header>
+        <div class="logo-area" onclick="showPage('home')">
+            <span class="glow-text">SEETUP</span>
+            <span class="live-status">🟢 CANLI: <span id="onlineCount">74</span></span>
+        </div>
+
+        <nav>
+            <a href="#" onclick="showPage('home')">🏠 Ana Sayfa</a>
+            <div class="dropdown">
+                <a href="#" class="dropbtn">🖱 Ekipmanlar ▾</a>
+                <div class="dropdown-content">
+                    <a href="#" onclick="showPage('equip-mouse')">Mouse</a>
+                    <a href="#" onclick="showPage('equip-mousepad')">Mousepad</a>
+                    <a href="#" onclick="showPage('equip-keyboard')">Klavye</a>
+                    <a href="#" onclick="showPage('equip-headset')">Kulaklık</a>
+                    <a href="#" onclick="showPage('equip-monitor')">Monitör</a>
+                    <a href="#" onclick="showPage('equip-koltuk')">Koltuk</a>
+                    <a href="#" onclick="showPage('equip-mikrofon')">Mikrofon</a>
+                    <a href="#" onclick="showPage('equip-kasa')">Kasa</a>
+                    <a href="#" onclick="showPage('equip-bilesenler')">Bileşenler</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <a href="#" class="dropbtn">🎬 Vitrinler ▾</a>
+                <div class="dropdown-content">
+                    <a href="#" onclick="showPage('tiktok-vitrin')">TikTok Vitrin</a>
+                </div>
+            </div>
+            <a href="#" onclick="openModal('drawModal')">🎁 Çekilişler</a>
+            <a href="#" onclick="showPage('badge-market')">🏅 Rozet Marketi</a>
+            <a href="#" onclick="showPage('forum')">💬 Forum</a>
+            <a href="#" onclick="handleProfileNav()">👤 Profilim</a>
+        </nav>
+
+        <div class="header-right">
+            <div class="currency">💰 <span id="goldCount">0</span> Gold</div>
+            <div class="currency">💎 <span id="gemCount">0</span> Gem</div>
+            <button class="auth-btn" onclick="openModal('loginModal')">🔐 Giriş Yap / Kayıt Ol</button>
+        </div>
+    </header>
+
+    <div id="home" class="page-content active">
+        <div class="hero-section">
+            <h1 class="glow-text main-title">SEETUP</h1>
+            <p class="subtitle">TÜRKİYE'NİN İLK VE TEK SETUP PLATFORMU</p>
+            <a href="https://tiktok.com/@flexy.setup0" target="_blank" class="tiktok-btn"><i class="fab fa-tiktok"></i> @flexy.setup0</a>
+        </div>
+    </div>
+
+    <div id="badge-market" class="page-content">
+        <h2 class="section-title">🏆 ROZET MARKETİ</h2>
+        <div id="badgeGridContainer" class="badge-grid"></div>
+        <div class="my-badges-section">
+            <h3>🏅 Sahip Olduğun Rozetler</h3>
+            <div id="ownedBadgesList" class="owned-badges-container">
+                <span class="no-badge-text">Henüz satın alınmış rozetiniz yok.</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="forum" class="page-content">
+        <h2 class="section-title">💬 FORUM / TARTIŞMA</h2>
+        <div class="forum-container">
+            <div class="create-topic-box">
+                <input type="text" id="topicTitle" placeholder="Konu Başlığı...">
+                <textarea id="topicContent" rows="4" placeholder="Ne düşünüyorsun? Sorunu veya fikrini buraya yaz..."></textarea>
+                <button class="main-btn" onclick="createNewTopic()">KONU AÇ</button>
+            </div>
+            <div id="forumTopicsList">
+                <div class="topic-card">
+                    <h3>İlk Kurulum Tavsiyeleri</h3>
+                    <p class="topic-meta">👤 Yazar: flexy admin | 📅 Tarih: 19.05.2026</p>
+                    <p class="topic-preview-text">Yeni bir setup kurarken kablolamaya dikkat edin...</p>
+                    <button class="read-btn" onclick="toggleReadForum(this)">📖 Oku / Cevapları Gör</button>
+                    <div class="forum-answers-area" style="display: none;">
+                        <div class="answers-list">
+                            <div class="answer-item"><strong>@kerem:</strong> Bence de kablo kanalları hayat kurtarıyor.</div>
+                        </div>
+                        <div class="answer-input-zone">
+                            <input type="text" placeholder="Cevabını yaz...">
+                            <button onclick="addAnswerToTopic(this)">Gönder</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="equip-mouse" class="page-content">
+        <h2 class="section-title">🖱 Ekipmanlar / Mouse</h2>
+        <div id="mouseGrid" class="equipment-grid"></div>
+    </div>
+    <div id="equip-mousepad" class="page-content">
+        <h2 class="section-title">🟪 Ekipmanlar / Mousepad</h2>
+        <div id="mousepadGrid" class="equipment-grid"></div>
+    </div>
+    <div id="equip-keyboard" class="page-content">
+        <h2 class="section-title">⌨ Ekipmanlar / Klavye</h2>
+        <div id="keyboardGrid" class="equipment-grid"></div>
+    </div>
+    <div id="equip-headset" class="page-content">
+        <h2 class="section-title">🎧 Ekipmanlar / Kulaklık</h2>
+        <div id="headsetGrid" class="equipment-grid"></div>
+    </div>
+    <div id="equip-monitor" class="page-content">
+        <h2 class="section-title">🖥 Ekipmanlar / Monitör</h2>
+        <div id="monitorGrid" class="equipment-grid"></div>
+    </div>
+    <div id="equip-koltuk" class="page-content">
+        <h2 class="section-title">💺 Ekipmanlar / Koltuk</h2>
+        <div id="koltukGrid" class="equipment-grid"></div>
+    </div>
+    <div id="equip-mikrofon" class="page-content">
+        <h2 class="section-title">🎙 Ekipmanlar / Mikrofon</h2>
+        <div id="mikrofonGrid" class="equipment-grid"></div>
+    </div>
+    <div id="equip-kasa" class="page-content">
+        <h2 class="section-title">🧰 Ekipmanlar / Kasa</h2>
+        <div id="kasaGrid" class="equipment-grid"></div>
+    </div>
+    <div id="equip-bilesenler" class="page-content">
+        <h2 class="section-title">🔌 Ekipmanlar / Bileşenler</h2>
+        <div id="bilesenlerGrid" class="equipment-grid"></div>
+    </div>
+
+    <div id="tiktok-vitrin" class="page-content">
+        <h2 class="section-title">🎬 TikTok Setup Vitrini</h2>
+        <div id="vitrinShowcaseGrid" class="equipment-grid"></div>
+        <p id="noVitrinGlobalText" style="text-align:center; color:#aaa;">En popüler setup videoları ve detayları burada listelenecek!</p>
+    </div>
+
+    <div id="my-profile-page" class="page-content">
+        <h2 class="section-title">👤 HESAP PANELİM</h2>
+        <div class="profile-container">
+            <div class="profile-header-card">
+                <div class="avatar-glow">👤</div>
+                <h3 id="profileUsernameDisplay">Kullanıcı Adı</h3>
+                <span id="profileRoleBadge" class="user-role-badge">Üye</span>
+            </div>
+
+            <div class="profile-section-box">
+                <h3>🎬 Vitrinimi Yükle</h3>
+                <div class="vitrin-upload-form">
+                    <input type="text" id="vitrinTitle" placeholder="Setup Başlığı (Örn: Minimalist Beyaz Setup)">
+                    <input type="text" id="vitrinLink" placeholder="TikTok Video Linki veya Detay Linki">
+                    <textarea id="vitrinDesc" placeholder="Setup Özellikleri ve Ekipmanlarınızı Yazın..." rows="3"></textarea>
+                    <button class="main-btn" onclick="uploadMyVitrin()">VİTRİNE GÖNDER</button>
+                </div>
+            </div>
+
+            <div class="profile-section-box">
+                <h3>❤ Beğendiğim Ekipmanlar</h3>
+                <div id="likedEquipmentsList" class="liked-equip-flex">
+                    <p class="no-badge-text">Henüz beğendiğiniz bir ekipman yok.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('loginModal')">&times;</span>
+            <h2>🔐 GİRİŞ YAP / KAYIT OL</h2>
+            <input type="text" id="authUser" placeholder="Kullanıcı Adı">
+            <input type="password" id="authPass" placeholder="Şifre">
+            <div class="modal-auth-buttons">
+                <button class="main-btn" onclick="handleAuth('login')">GİRİŞ YAP</button>
+                <button class="main-btn register-btn" onclick="handleAuth('register')">📝 KAYIT OL</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="drawModal" class="modal">
+        <div class="modal-content draw-modal-content">
+            <span class="close-btn" onclick="closeModal('drawModal')">&times;</span>
+            <h2>🎁 INOVAPIN ÇEKİLİŞ PANELİ</h2>
+            <div class="inovapin-box">
+                <h3 id="drawTitleDisplay">Haftalık 6x875 VP Çekilişi!</h3>
+                <p class="sponsor-text">Destekçimiz: <span class="white-inovapin">INOVAPIN</span></p>
+                <div class="inovapin-style-card">
+                    <div class="draw-gift-icon">💎</div>
+                    <h4 id="drawGiftDisplay">6x875 Valorant Points</h4>
+                    <button class="join-draw-btn" id="joinBtn" onclick="joinGiveaway()">🎁 ÇEKİLİŞE KATIL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminPanelModal" class="modal">
+        <div class="modal-content admin-modal-glow">
+            <span class="close-btn" onclick="closeModal('adminPanelModal')">&times;</span>
+            <h2>👑 KURUCU YÖNETİM PANELİ</h2>
+             
+            <div class="admin-main-menu">
+                <button class="main-btn admin-menu-btn" onclick="openAdminSub('adminDrawSection')">🎁 ÇEKİLİŞ AYARLARI</button>
+                <button class="main-btn admin-menu-btn economy-btn" onclick="openAdminSub('adminBadgeSection')">🏅 ROZET MARKETİ</button>
+                <button class="main-btn admin-menu-btn product-btn" onclick="openAdminSub('adminEquipSection')">📦 ÜRÜN EKLE (EKİPMAN)</button>
+            </div>
+
+            <div id="adminDrawSection" class="admin-sub-panel" style="display: none;">
+                <h4>Çekiliş Bilgilerini Güncelle</h4>
+                <div class="admin-input-group">
+                    <input type="text" id="admDrawTitle" placeholder="Çekiliş Başlığı">
+                    <input type="text" id="admDrawGift" placeholder="Ödül Adı">
+                    <button class="read-btn admin-update-btn" onclick="updateDrawSettings()">Güncelle ve Kaydet</button>
+                </div>
+            </div>
+
+            <div id="adminBadgeSection" class="admin-sub-panel" style="display: none;">
+                <h4>Rozet Ekle / Kaldır</h4>
+                <div class="admin-input-group">
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <input type="text" id="admBadgeIcon" placeholder="İkon (👑, 🔥, 🚀)" style="flex: 0.3;">
+                        <input type="text" id="admBadgeName" placeholder="Rozet Adı" style="flex: 0.7;">
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <input type="number" id="admBadgePrice" placeholder="Fiyat" style="flex: 0.6;">
+                        <select id="admBadgeCurrency" class="admin-select" style="flex: 0.4;">
+                            <option value="gold">Gold 💰</option>
+                            <option value="gem">Gem 💎</option>
+                        </select>
+                    </div>
+                    <button class="read-btn admin-success-btn" onclick="addNewBadgeToMarket()">Markete Ekle</button>
+                </div>
+                <h5 style="margin-top: 15px; color: #aaa; font-size: 0.8rem;">Mevcut Rozetleri Sil:</h5>
+                <div id="adminDeleteBadgeList" class="admin-scroll-zone"></div>
+            </div>
+
+            <div id="adminEquipSection" class="admin-sub-panel" style="display: none;">
+                <h4>Ekipman Ekle / Kaldır</h4>
+                <div class="admin-input-group">
+                    <select id="admEquipCategory" class="admin-select" onchange="updateAdminEquipDeleteList(this.value)" style="margin-bottom: 10px;">
+                        <option value="mouse">Mouse 🖱</option>
+                        <option value="mousepad">Mousepad 🟪</option>
+                        <option value="keyboard">Klavye ⌨</option>
+                        <option value="headset">Kulaklık 🎧</option>
+                        <option value="monitor">Monitör 🖥</option>
+                        <option value="koltuk">Koltuk 💺</option>
+                        <option value="mikrofon">Mikrofon 🎙</option>
+                        <option value="kasa">Kasa 🧰</option>
+                        <option value="bilesenler">Bilesenler 🔌</option>
+                    </select>
+                    <input type="text" id="admEquipName" placeholder="Ürün Adı (Örn: G Pro X Superlight)">
+                    <input type="text" id="admEquipLink" placeholder="İnceleme/Satın Alma Linki (Opsiyonel)">
+                    <input type="text" id="admEquipImg" placeholder="Resim URL Adresi (https://...)">
+                    <textarea id="admEquipDesc" placeholder="Kısa Açıklama (Örn: 25K DPI Sensör, Hafif Kasa)" rows="2"></textarea>
+                    <button class="read-btn admin-success-btn" onclick="addNewEquipment()">Sisteme Ekle</button>
+                </div>
+                <h5 style="margin-top: 15px; color: #aaa; font-size: 0.8rem;">Mevcut Ürünleri Sil (Üstteki Seçime Göre Listelenir):</h5>
+                <div id="adminDeleteEquipList" class="admin-scroll-zone"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chat-widget">
+        <button class="chat-trigger" onclick="toggleChat()">💬</button>
+        <div class="chat-window" id="chatWindow" style="display: none;">
+            <div class="chat-header">🌐 CANLI SOHBET</div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="msg alert"><span style="color: #ff0055; font-weight: bold;">Küfür yasaktır.</span> Sohbete hoş geldiniz!</div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="Mesajınızı yazın..." onkeypress="if(event.key==='Enter') { sendChatMessage(); event.preventDefault(); }">
+                <button onclick="sendChatMessage()">Gönder</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js"; // Firestore import edildi
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB6ue2QIsukTb1NY-qBcsZib3SP9HKsLKA",
+            authDomain: "seetupp.firebaseapp.com",
+            projectId: "seetupp",
+            storageBucket: "seetupp.firebasestorage.app",
+            messagingSenderId: "298047213364",
+            appId: "1:298047213364:web:ff192f9e23fbcd20325f61",
+            measurementId: "G-E28JH0HV3H"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app); // Firestore başlatıldı
+        
+        window.firebaseApp = app;
+        window.db = db; // Global olarak script.js erişimine açıldı
+    </script>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
