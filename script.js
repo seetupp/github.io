@@ -1,15 +1,14 @@
 import { collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, query, orderBy, serverTimestamp, setDoc, getDoc, increment } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 // ==========================================
-// GLOBALS & RECOVERY VARIABLES
+// GLOBALS
 // ==========================================
 let userLoggedIn = false;
 let currentUsername = "";
 let likedEquipments = [];
 let isKurucuActive = false;
-let userData = { gold: 0, gem: 0, ownedBadges: [] };
+let userData = { gold: 0, gem: 0, ownedBadges: [], activeBadge: "", isAdmin: false };
 
-// Firebase yüklendikten sonra yerel değişken yerine veritabanından beslenecek ürünler listesi
 let customEquipments = {
     mouse: [], mousepad: [], keyboard: [], headset: [], monitor: [], koltuk: [], mikrofon: [], kasa: [], bilesenler: []
 };
@@ -87,7 +86,7 @@ setInterval(() => {
 }, 3000);
 
 // ==========================================
-// GERÇEK ZAMANLI FIREBASE SORGULARI
+// FIREBASE REALTIME
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
     const db = window.db;
@@ -107,7 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     name: data.name,
                     desc: data.desc,
                     link: data.link || "#",
-                    foto_url: data.foto_url || ""
+                    foto_url: data.foto_url || "https://via.placeholder.com/400x300/0a0f14/00bcff?text=Foto+Yok"
                 });
             }
         });
@@ -126,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateAdminDeleteListUI();
     });
 
-    // 3. FORUM KONULARI
+    // 3. FORUM
     onSnapshot(query(collection(db, "forum"), orderBy("timestamp", "desc")), (snapshot) => {
         forumTopics = [];
         snapshot.forEach((doc) => {
@@ -144,36 +143,49 @@ document.addEventListener("DOMContentLoaded", () => {
         renderVitrinler();
     });
 
-    // 5. GLOBAL CHAT
-    onSnapshot(query(collection(db, "chat"), orderBy("timestamp", "asc")), (snapshot) => {
+    // 5. CHAT - ROZET GÖSTERME
+    onSnapshot(query(collection(db, "chat"), orderBy("timestamp", "asc")), async (snapshot) => {
         const messagesDiv = document.getElementById("chatMessages");
         if(!messagesDiv) return;
         messagesDiv.innerHTML = '<div class="msg alert">⚠️ Sohbet kurallarına uyun! Küfür/Hakaret yasaktır.</div>';
-        snapshot.forEach((doc) => {
-            const data = doc.data();
+
+        for (const docSnap of snapshot.docs) {
+            const data = docSnap.data();
             const msgRow = document.createElement("div");
             msgRow.className = "chat-msg-row";
+
+            let userBadge = "";
+            if (!data.isAdmin && data.username) {
+                const userRef = doc(db, "users", data.username.toLowerCase());
+                const userDoc = await getDoc(userRef);
+                if (userDoc.exists() && userDoc.data().activeBadge) {
+                    const badgeName = userDoc.data().activeBadge;
+                    const badgeData = customBadges.find(b => b.name === badgeName);
+                    if (badgeData) userBadge = `<span class="chat-user-badge" title="${badgeData.name}">${badgeData.icon}</span>`;
+                }
+            }
+
             if(data.isAdmin) {
                 msgRow.innerHTML = `
                     <div class="msg-body" style="color: #ffaa00; font-weight: bold; text-shadow: 0 0 5px rgba(255,170,0,0.3)">
-                        <span class="chat-admin-badge" style="background:#ffaa00; color:#000; padding:1px 5px; border-radius:3px; font-size:0.75rem; margin-right:4px;">👑 ${data.username}</span>: ${data.text}
+                        <span class="chat-admin-badge">👑 ${data.username}</span>: ${data.text}
                     </div>
                 `;
             } else {
                 msgRow.innerHTML = `
                     <div class="msg-body" style="margin-bottom: 6px;">
-                        <strong style="color: #00bcff;">${data.username}:</strong> ${data.text}
+                        ${userBadge}<strong style="color: #00bcff;">${data.username}:</strong> ${data.text}
                     </div>
                 `;
             }
             messagesDiv.appendChild(msgRow);
-        });
+        }
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     });
 });
 
 // ==========================================
-// SAYFA GEÇİŞLERİ VE NAVİGASYON
+// SAYFA GEÇİŞLERİ
 // ==========================================
 window.showPage = function(pageId) {
     const pages = document.querySelectorAll('.page-content');
@@ -231,7 +243,6 @@ window.handleAuth = async function(type) {
     currentUsername = user;
     const db = window.db;
 
-    // Kullanıcı verisini çek veya oluştur
     const userRef = doc(db, "users", user.toLowerCase());
     const userSnap = await getDoc(userRef);
 
@@ -241,6 +252,7 @@ window.handleAuth = async function(type) {
             gold: 1300,
             gem: 100,
             ownedBadges: [],
+            activeBadge: "",
             isAdmin: user.toLowerCase() === "flexy" && pass === "kerem4848*"
         });
     }
@@ -297,7 +309,48 @@ async function loadUserData() {
 }
 
 // ==========================================
-// KURUCU PANELİ - VERİTABANI BAĞLANTILARI
+// ROZET SEÇME SİSTEMİ - YENİ
+// ==========================================
+window.selectBadge = async function(badgeName) {
+    if(!userLoggedIn) return;
+    const db = window.db;
+    const userRef = doc(db, "users", currentUsername.toLowerCase());
+
+    if (userData.activeBadge === badgeName) {
+        await updateDoc(userRef, { activeBadge: "" });
+        alert("Rozet kaldırıldı!");
+    } else {
+        await updateDoc(userRef, { activeBadge: badgeName });
+        alert(`[${badgeName}] rozeti aktif edildi! 🏆`);
+    }
+    loadUserData();
+};
+
+function renderOwnedBadges() {
+    const container = document.getElementById("ownedBadgesList");
+    if(!container) return;
+    if(userData.ownedBadges.length === 0) {
+        container.innerHTML = '<p class="no-badge-text">Henüz rozetiniz yok.</p>';
+        return;
+    }
+    container.innerHTML = "";
+    userData.ownedBadges.forEach(badgeName => {
+        const badgeData = customBadges.find(b => b.name === badgeName);
+        const isActive = userData.activeBadge === badgeName;
+        const badgeDiv = document.createElement("div");
+        badgeDiv.className = `owned-badge-item ${isActive? 'active-badge' : ''}`;
+        badgeDiv.innerHTML = `
+            <span>${badgeData? badgeData.icon : '🏅'} ${badgeName}</span>
+            <button class="use-badge-btn" onclick="selectBadge('${badgeName}')">
+                ${isActive? '✓ Kullanılıyor' : 'Kullan'}
+            </button>
+        `;
+        container.appendChild(badgeDiv);
+    });
+}
+
+// ==========================================
+// KURUCU PANELİ
 // ==========================================
 window.openAdminSub = function(sectionId) {
     const subs = document.querySelectorAll('.admin-sub-panel');
@@ -320,7 +373,7 @@ window.updateDrawSettings = function() {
     alert("Çekiliş bilgileri başarıyla güncellendi! 🎁");
 };
 
-// ROZET MARKETİ - FIREBASE
+// ROZET MARKETİ
 function renderMarketBadges() {
     const grid = document.getElementById("badgeGridContainer");
     if(!grid) return;
@@ -379,7 +432,7 @@ window.deleteBadgeFromMarket = async function(badgeId) {
     }
 };
 
-// EKİPMAN EKLEME - FOTO URL EKLENDİ
+// EKİPMAN EKLEME
 window.addNewEquipment = async function() {
     const category = document.getElementById("admEquipCategory").value;
     const name = document.getElementById("admEquipName").value.trim();
@@ -448,7 +501,7 @@ window.deleteEquipmentFromSystem = async function(docId) {
 };
 
 // ==========================================
-// ROZET SATIN ALMA - FIREBASE
+// ROZET SATIN ALMA
 // ==========================================
 window.buyBadge = async function(badgeId, badgeName, price, currencyType) {
     if(!userLoggedIn) {
@@ -489,24 +542,8 @@ window.buyBadge = async function(badgeId, badgeName, price, currencyType) {
     }
 };
 
-function renderOwnedBadges() {
-    const container = document.getElementById("ownedBadgesList");
-    if(!container) return;
-    if(userData.ownedBadges.length === 0) {
-        container.innerHTML = '<p class="no-badge-text">Henüz rozetiniz yok.</p>';
-        return;
-    }
-    container.innerHTML = "";
-    userData.ownedBadges.forEach(badgeName => {
-        const badgeSpan = document.createElement("span");
-        badgeSpan.className = "owned-badge-item";
-        badgeSpan.innerText = badgeName;
-        container.appendChild(badgeSpan);
-    });
-}
-
 // ==========================================
-// FORUM - FIREBASE
+// FORUM
 // ==========================================
 function renderForumTopics() {
     const list = document.getElementById("forumTopicsList");
@@ -603,7 +640,7 @@ window.toggleReadForum = function(button) {
 };
 
 // ==========================================
-// VİTRİNLER - FIREBASE
+// VİTRİNLER
 // ==========================================
 function renderVitrinler() {
     const globalGrid = document.getElementById("vitrinShowcaseGrid");
@@ -658,7 +695,7 @@ window.uploadMyVitrin = async function() {
 };
 
 // ==========================================
-// CHAT - FIREBASE
+// CHAT
 // ==========================================
 window.toggleChat = function() {
     const chatWin = document.getElementById("chatWindow");
@@ -688,7 +725,7 @@ window.sendChatMessage = async function() {
 };
 
 // ==========================================
-// DİĞER FONKSİYONLAR
+// DİĞER
 // ==========================================
 window.joinGiveaway = function() {
     window.open("https://www.inovapin.com/p/seetup?page=1&t=cekilisler", "_blank");
@@ -748,7 +785,7 @@ window.removeLikedDirectly = function(itemName) {
 };
 
 // ==========================================
-// DİNAMİK EKİPMAN RENDER MOTORU - FOTO EKLENDİ
+// EKİPMAN RENDER
 // ==========================================
 function renderAllEquipments() {
     const categories = ['mouse', 'mousepad', 'keyboard', 'headset', 'monitor', 'koltuk', 'mikrofon', 'kasa', 'bilesenler'];
@@ -766,7 +803,7 @@ function renderEquipGrid(category) {
         card.className = "equip-card";
         card.innerHTML = `
             <i class="fa-regular fa-heart favorite-icon" onclick="toggleFavorite(this, '${item.name}')"></i>
-            <img src="${item.foto_url}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/400x300/0a0f14/00bcff?text=Foto+Yok'" class="equip-img">
+            <img src="${item.foto_url}" alt="${item.name}" class="equip-img">
             <h3>${item.name}</h3>
             <p class="equip-desc">${item.desc}</p>
             <a href="${item.link}" target="_blank" class="action-btn" style="display:block; text-decoration:none; line-height:36px; text-align:center;">İncele</a>
