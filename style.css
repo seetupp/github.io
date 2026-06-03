@@ -255,10 +255,10 @@ nav a:hover {
     text-shadow: 0 0 10px rgba(0, 188, 255, 0.5);
 }
 
-/* ===== EKİPMAN KARTLARI - WRAITH STİLİ KÜÇÜK VE ŞIK ===== */
+/* ===== EKİPMAN KARTLARI - BÜYÜK FOTO ===== */
 .equipment-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 20px;
     padding: 20px 0;
 }
@@ -274,7 +274,7 @@ nav a:hover {
     transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
-    height: 420px;
+    height: 460px;
 }
 
 .equip-card:hover {
@@ -285,7 +285,7 @@ nav a:hover {
 
 .equip-card .equip-img {
     width: 100%;
-    height: 240px;
+    height: 280px;
     object-fit: contain;
     background: #0a0f14;
     padding: 20px;
@@ -293,10 +293,10 @@ nav a:hover {
 }
 
 .equip-card h3 {
-    font-size: 0.95rem;
-    margin: 15px 12px 8px 12px;
+    font-size: 1rem;
+    margin: 15px 15px 8px 15px;
     color: #fff;
-    min-height: 45px;
+    min-height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -304,9 +304,9 @@ nav a:hover {
 }
 
 .equip-card .equip-desc {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     color: #777;
-    margin: 0 12px 15px 12px;
+    margin: 0 15px 15px 15px;
     flex: 1;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -315,18 +315,18 @@ nav a:hover {
 }
 
 .equip-card .action-btn {
-    margin: 0 12px 15px 12px;
+    margin: 0 15px 15px 15px;
     background: #00bcff;
     color: #000;
     border: none;
-    padding: 10px;
+    padding: 12px;
     font-weight: bold;
     border-radius: 6px;
     cursor: pointer;
     transition: 0.3s;
     text-decoration: none;
     display: block;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
 }
 
 .equip-card .action-btn:hover {
@@ -416,13 +416,63 @@ nav a:hover {
     flex-wrap: wrap;
 }
 
+/* ===== ROZET SİSTEMİ CSS - YENİ ===== */
 .owned-badge-item {
     background: rgba(0, 188, 255, 0.1);
-    border: 1px solid #00bcff;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 0.9rem;
+    border: 1px solid #333;
+    padding: 12px 16px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    transition: 0.3s;
+    width: 100%;
 }
+
+.owned-badge-item.active-badge {
+    border-color: #00bcff;
+    background: rgba(0, 188, 255, 0.2);
+    box-shadow: 0 0 10px rgba(0, 188, 255, 0.3);
+}
+
+.use-badge-btn {
+    background: #00bcff;
+    color: #000;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: 0.3s;
+}
+
+.use-badge-btn:hover {
+    box-shadow: 0 0 10px #00bcff;
+}
+
+.active-badge .use-badge-btn {
+    background: #00ff66;
+}
+
+.chat-user-badge {
+    display: inline-block;
+    margin-right: 4px;
+    font-size: 1rem;
+    vertical-align: middle;
+}
+
+.chat-admin-badge {
+    background: #ffaa00;
+    color: #000;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    margin-right: 4px;
+    font-weight: bold;
+}
+/* ===== ROZET SİSTEMİ BİTTİ ===== */
 
 .no-badge-text {
     color: #555;
