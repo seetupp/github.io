@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <link rel="icon" href="indir_1.htm" type="image/x-icon">
+    <link rel="icon" href="https://cdn.fbsbx.com/v/t65.102178-21/713443077_4414164158807480_3021358605944590905_n.jpg/S_favicon_16.png?_nc_ht=cdn.fbsbx.com&_nc_ohc=CEc7M-n1M9AQ7kNvwH2ssFi&sdl=0&ccb=14-4&oh=00_Af8HA6rytTPQlXbV_YPvJm6x4kkYpX54CB2ZMZ2I9olCKg&oe=6A20CDA8&_nc_sid=4ee932" type="image/png">
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SEETUP | TR'DE TEK</title>
@@ -293,7 +294,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js"; // Firestore import edildi
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB6ue2QIsukTb1NY-qBcsZib3SP9HKsLKA",
@@ -307,10 +308,10 @@
 
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
-        const db = getFirestore(app); // Firestore başlatıldı
+        const db = getFirestore(app);
         
         window.firebaseApp = app;
-        window.db = db; // Global olarak script.js erişimine açıldı
+        window.db = db;
     </script>
 
     <script type="module" src="script.js"></script>
