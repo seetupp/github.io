@@ -1,6 +1,23 @@
 import { collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, query, orderBy, serverTimestamp, setDoc, getDoc, increment } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 // ==========================================
+// GÜVENLİK FİLTRESİ (XSS ÖNLEYİCİ)
+// ==========================================
+function escapeHTML(str) {
+    if (!str) return '';
+    return str.replace(/[&<>"']/g, function(match) {
+        const masks = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#x27;'
+        };
+        return masks[match];
+    });
+}
+
+// ==========================================
 // GLOBALS
 // ==========================================
 let userLoggedIn = false;
@@ -143,7 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
         renderVitrinler();
     });
 
-    // 5. CHAT - ROZET GÖSTERME
+    // 5. CHAT - ROZET GÖSTERME (GÜVENLİ HALE GETİRİLDİ)
     onSnapshot(query(collection(db, "chat"), orderBy("timestamp", "asc")), async (snapshot) => {
         const messagesDiv = document.getElementById("chatMessages");
         if(!messagesDiv) return;
@@ -161,20 +178,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (userDoc.exists() && userDoc.data().activeBadge) {
                     const badgeName = userDoc.data().activeBadge;
                     const badgeData = customBadges.find(b => b.name === badgeName);
-                    if (badgeData) userBadge = `<span class="chat-user-badge" title="${badgeData.name}">${badgeData.icon}</span>`;
+                    if (badgeData) userBadge = `<span class="chat-user-badge" title="${escapeHTML(badgeData.name)}">${badgeData.icon}</span>`;
                 }
             }
 
+            // Chat alanına yazılan text escapeHTML() ile güvenli hale getirildi
             if(data.isAdmin) {
                 msgRow.innerHTML = `
                     <div class="msg-body" style="color: #ffaa00; font-weight: bold; text-shadow: 0 0 5px rgba(255,170,0,0.3)">
-                        <span class="chat-admin-badge">👑 ${data.username}</span>: ${data.text}
+                        <span class="chat-admin-badge">👑 ${escapeHTML(data.username)}</span>: ${escapeHTML(data.text)}
                     </div>
                 `;
             } else {
                 msgRow.innerHTML = `
                     <div class="msg-body" style="margin-bottom: 6px;">
-                        ${userBadge}<strong style="color: #00bcff;">${data.username}:</strong> ${data.text}
+                        ${userBadge}<strong style="color: #00bcff;">${escapeHTML(data.username)}:</strong> ${escapeHTML(data.text)}
                     </div>
                 `;
             }
@@ -309,7 +327,7 @@ async function loadUserData() {
 }
 
 // ==========================================
-// ROZET SEÇME SİSTEMİ - YENİ
+// ROZET SEÇME SİSTEMİ
 // ==========================================
 window.selectBadge = async function(badgeName) {
     if(!userLoggedIn) return;
@@ -340,8 +358,8 @@ function renderOwnedBadges() {
         const badgeDiv = document.createElement("div");
         badgeDiv.className = `owned-badge-item ${isActive? 'active-badge' : ''}`;
         badgeDiv.innerHTML = `
-            <span>${badgeData? badgeData.icon : '🏅'} ${badgeName}</span>
-            <button class="use-badge-btn" onclick="selectBadge('${badgeName}')">
+            <span>${badgeData? badgeData.icon : '🏅'} ${escapeHTML(badgeName)}</span>
+            <button class="use-badge-btn" onclick="selectBadge('${escapeHTML(badgeName)}')">
                 ${isActive? '✓ Kullanılıyor' : 'Kullan'}
             </button>
         `;
@@ -383,9 +401,9 @@ function renderMarketBadges() {
         card.className = "badge-card";
         card.innerHTML = `
             <span class="badge-icon">${badge.icon}</span>
-            <h3>${badge.name}</h3>
+            <h3>${escapeHTML(badge.name)}</h3>
             <p class="price">Fiyat: ${badge.price} ${badge.type === 'gold'? 'Gold 🪙' : 'Gem 💎'}</p>
-            <button class="action-btn" onclick="buyBadge('${badge.id}', '${badge.name}', ${badge.price}, '${badge.type}')">Satın Al</button>
+            <button class="action-btn" onclick="buyBadge('${badge.id}', '${escapeHTML(badge.name)}', ${badge.price}, '${badge.type}')">Satın Al</button>
         `;
         grid.appendChild(card);
     });
@@ -399,7 +417,7 @@ function updateAdminDeleteListUI() {
         const div = document.createElement("div");
         div.className = "admin-del-item";
         div.innerHTML = `
-            <span>${badge.icon} ${badge.name}</span>
+            <span>${badge.icon} ${escapeHTML(badge.name)}</span>
             <button class="remove-liked-btn" onclick="deleteBadgeFromMarket('${badge.id}')"><i class="fa-solid fa-trash"></i></button>
         `;
         delZone.appendChild(div);
@@ -480,7 +498,7 @@ window.updateAdminEquipDeleteList = function(category) {
         const div = document.createElement("div");
         div.className = "admin-del-item";
         div.innerHTML = `
-            <span>⚙️ ${item.name}</span>
+            <span>⚙️ ${escapeHTML(item.name)}</span>
             <button class="remove-liked-btn" onclick="deleteEquipmentFromSystem('${item.id}')"><i class="fa-solid fa-trash"></i></button>
         `;
         delZone.appendChild(div);
@@ -543,7 +561,7 @@ window.buyBadge = async function(badgeId, badgeName, price, currencyType) {
 };
 
 // ==========================================
-// FORUM
+// FORUM (GÜVENLİ HALE GETİRİLDİ)
 // ==========================================
 function renderForumTopics() {
     const list = document.getElementById("forumTopicsList");
@@ -552,10 +570,11 @@ function renderForumTopics() {
     forumTopics.forEach(topic => {
         const newCard = document.createElement("div");
         newCard.className = "topic-card";
+        // Başlık, yazar ve içerik alanları escapeHTML() ile korundu
         newCard.innerHTML = `
-            <h3>${topic.title}</h3>
-            <p class="topic-meta">👤 Yazar: ${topic.author} | 📅 ${new Date(topic.timestamp?.toDate()).toLocaleDateString()}</p>
-            <p class="topic-preview-text">${topic.content}</p>
+            <h3>${escapeHTML(topic.title)}</h3>
+            <p class="topic-meta">👤 Yazar: ${escapeHTML(topic.author)} | 📅 ${new Date(topic.timestamp?.toDate()).toLocaleDateString()}</p>
+            <p class="topic-preview-text">${escapeHTML(topic.content)}</p>
             <button class="read-btn" onclick="toggleReadForum(this)">📖 Oku / Cevapları Gör</button>
             <div class="forum-answers-area" style="display: none;">
                 <div class="answers-list" id="answers-${topic.id}"></div>
@@ -581,7 +600,8 @@ async function loadAnswers(topicId) {
             const data = doc.data();
             const newItem = document.createElement("div");
             newItem.className = "answer-item";
-            newItem.innerHTML = `<strong>@${data.author}:</strong> ${data.text}`;
+            // Forum cevapları escapeHTML() ile korundu
+            newItem.innerHTML = `<strong>@${escapeHTML(data.author)}:</strong> ${escapeHTML(data.text)}`;
             answersList.appendChild(newItem);
         });
     });
@@ -640,7 +660,7 @@ window.toggleReadForum = function(button) {
 };
 
 // ==========================================
-// VİTRİNLER
+// VİTRİNLER (GÜVENLİ HALE GETİRİLDİ)
 // ==========================================
 function renderVitrinler() {
     const globalGrid = document.getElementById("vitrinShowcaseGrid");
@@ -657,11 +677,12 @@ function renderVitrinler() {
         const card = document.createElement("div");
         card.className = "equip-card";
         card.style.borderColor = "#9b51e0";
+        // Vitrin başlık ve açıklamaları escapeHTML() ile korundu, link attribute'u güvenli hale getirildi
         card.innerHTML = `
-            <h3 style="color:#9b51e0;">🎬 ${item.title}</h3>
-            <p class="topic-meta">👤 Yükleyen: ${item.author}</p>
-            <p class="equip-desc">${item.desc}</p>
-            <a href="${item.link || '#'}" target="_blank" class="read-btn" style="display:inline-block; border-color:#9b51e0; color:#9b51e0; text-decoration:none; margin-top:10px;">Videoyu/Detayı Gör</a>
+            <h3 style="color:#9b51e0;">🎬 ${escapeHTML(item.title)}</h3>
+            <p class="topic-meta">👤 Yükleyen: ${escapeHTML(item.author)}</p>
+            <p class="equip-desc">${escapeHTML(item.desc)}</p>
+            <a href="${escapeHTML(item.link) || '#'}" target="_blank" class="read-btn" style="display:inline-block; border-color:#9b51e0; color:#9b51e0; text-decoration:none; margin-top:10px;">Videoyu/Detayı Gör</a>
         `;
         globalGrid.appendChild(card);
     });
@@ -695,7 +716,7 @@ window.uploadMyVitrin = async function() {
 };
 
 // ==========================================
-// CHAT
+// CHAT TETİKLEME
 // ==========================================
 window.toggleChat = function() {
     const chatWin = document.getElementById("chatWindow");
@@ -761,8 +782,8 @@ function updateLikedListUI() {
         const div = document.createElement("div");
         div.className = "liked-item";
         div.innerHTML = `
-            <span>⚙️ ${item}</span>
-            <button class="remove-liked-btn" onclick="removeLikedDirectly('${item}')"><i class="fa-solid fa-trash"></i></button>
+            <span>⚙️ ${escapeHTML(item)}</span>
+            <button class="remove-liked-btn" onclick="removeLikedDirectly('${escapeHTML(item)}')"><i class="fa-solid fa-trash"></i></button>
         `;
         container.appendChild(div);
     });
@@ -802,11 +823,11 @@ function renderEquipGrid(category) {
         const card = document.createElement("div");
         card.className = "equip-card";
         card.innerHTML = `
-            <i class="fa-regular fa-heart favorite-icon" onclick="toggleFavorite(this, '${item.name}')"></i>
-            <img src="${item.foto_url}" alt="${item.name}" class="equip-img">
-            <h3>${item.name}</h3>
-            <p class="equip-desc">${item.desc}</p>
-            <a href="${item.link}" target="_blank" class="action-btn" style="display:block; text-decoration:none; line-height:36px; text-align:center;">İncele</a>
+            <i class="fa-regular fa-heart favorite-icon" onclick="toggleFavorite(this, '${escapeHTML(item.name)}')"></i>
+            <img src="${escapeHTML(item.foto_url)}" alt="${escapeHTML(item.name)}" class="equip-img">
+            <h3>${escapeHTML(item.name)}</h3>
+            <p class="equip-desc">${escapeHTML(item.desc)}</p>
+            <a href="${escapeHTML(item.link)}" target="_blank" class="action-btn" style="display:block; text-decoration:none; line-height:36px; text-align:center;">İncele</a>
         `;
         grid.appendChild(card);
     });
